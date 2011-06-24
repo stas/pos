@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <output>
-
     <display>
         <line>
             <text align="left" length="10">Total.</text>
@@ -11,15 +10,49 @@
         </line>
     </display>
 
-    <ticket printer = "2">
+    <ticket printer = "1" >
+        <line>
+            <text>${ticket.getCompanyInfo().getCompanyName()}</text>
+            <text> CUI: ${ticket.getCompanyInfo().getCui()}</text>
+            <text> Nr.Reg: ${ticket.getCompanyInfo().getNrReg()}</text>
+        </line>
+
         #foreach ($ticketline in $ticket.getLines())
         <line>
-            <text>S,1,______,_,__;${ticketline.getProduct().printName().toUpperCase()};${ticketline.getPriceTax()};${ticketline.printMultiply().replace(",", ".")}.000;${ticketline.printMatCat().replace("-", "")};1;1;0;0;</text>
+            <text>S,1,______,_,__;</text>
+            <text>${ticketline.printName().toUpperCase()};</text>
+            <text>${ticketline.getPriceTax()};</text>
+            <text>${ticketline.printMultiply().replace(",", ".")}.000;</text>
+            #if ( !$ticketline.getProperty("product.warehouse").equals("Kitchen") && !$ticketline.getProperty("product.warehouse").equals("Bar") )
+                <text>0;</text>
+            #end
+            #if ( $ticketline.getProperty("product.warehouse").equals("Bar") )
+                <text>1;</text>
+            #end
+            #if ( $ticketline.getProperty("product.warehouse").equals("Kitchen") )
+                <text>2;</text>
+            #end
+            <text>1;1;0;0;</text>
         </line>
         #end
 
         <line>
-            <text>T,1,______,_,__;#foreach ($paymentline in $ticket.payments)#if ($paymentline.name == "cash")0#end#if ($paymentline.name == "paperin")3#end#if ($paymentline.name == "magcard")2#end#if ($paymentline.name == "cheque")1#end#end;;;</text>
+            <text>T,1,______,_,__;</text>
+            #foreach ($paymentline in $ticket.payments)
+                #if ($paymentline.name == "cash")
+                    <text>0;</text>
+                #end
+                #if ($paymentline.name == "paperin")
+                    <text>3;</text>
+                #end
+                #if ($paymentline.name == "magcard")
+                    <text>2;</text>
+                #end
+                #if ($paymentline.name == "cheque")
+                    <text>1;</text>
+                #end
+            #end
+            <text>;;</text>
         </line>
     </ticket>
 
